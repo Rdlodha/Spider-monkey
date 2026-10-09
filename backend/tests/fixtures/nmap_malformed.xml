@@ -1,0 +1,1 @@
+This is not valid XML at all. It's just random text that should cause the parser to return an error.

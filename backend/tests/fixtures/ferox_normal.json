@@ -1,0 +1,4 @@
+{"url":"http://example.com/admin","status":200,"content_length":4523,"type":"file","method":"GET","url_redirection":""}
+{"url":"http://example.com/login","status":200,"content_length":1234,"type":"file","method":"GET","url_redirection":""}
+{"url":"http://example.com/api/v1","status":403,"content_length":42,"type":"dir","method":"GET","url_redirection":""}
+{"url":"http://example.com/static","status":301,"content_length":0,"type":"dir","method":"GET","url_redirection":"http://example.com/static/"}

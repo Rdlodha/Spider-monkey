@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<nmaprun scanner="nmap" args="nmap -sV 10.0.0.5" start="1697000000" version="7.94">
+  <host starttime="1697000001" endtime="1697000010">
+    <status state="up" reason="echo-reply"/>
+    <address addr="10.0.0.5" addrtype="ipv4"/>
+    <hostnames/>
+    <ports/>
+  </host>
+</nmaprun>

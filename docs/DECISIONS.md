@@ -1,0 +1,9 @@
+# Decisions
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| 1 | Stack: React+Vite+JS, Tailwind, shadcn/ui, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL | Modern, well-supported, fits single-dev workbench |
+| 2 | Local-only deployment: backend on 127.0.0.1, CORS to http://localhost:5173 only, random bearer token | Single-user tool; prevents DNS-rebinding and cross-site API abuse |
+| 3 | One implicit user "local"; actor stored in AuditLog | Allows multi-user extension later without reshaping data |
+| 4 | Raw files stored on disk by SHA-256 hash; path+hash in DB | Avoids text-column bloat; enables integrity verification |
+| 5 | All parsers return normalized objects; DB layer is tool-agnostic | Decouples parsing from persistence; easy to add new tools |

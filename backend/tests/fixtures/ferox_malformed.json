@@ -1,0 +1,4 @@
+{"url":"http://example.com/valid","status":200,"content_length":100}
+not valid json at all }{}{
+{"url":"http://example.com/also-valid","status":404,"content_length":0}
+{"missing_url_key":"oops","status":200}
