@@ -5,7 +5,7 @@ from app.models.base import Project, Target
 from app.schemas.project import ProjectCreate, ProjectResponse, TargetCreate, TargetResponse
 from app.core.audit import audit
 from app.core.config import settings
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -25,7 +25,7 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
         
     db_project = Project(
         name=project.name,
-        authorized_ack_at=datetime.utcnow()
+        authorized_ack_at=datetime.now(timezone.utc)
     )
     db.add(db_project)
     db.commit()

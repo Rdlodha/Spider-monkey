@@ -1,7 +1,7 @@
 """Pydantic schemas for Scan, Host, Service, and Endpoint API responses."""
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 # ── Service ──────────────────────────────────────────────────────────────────
@@ -19,8 +19,7 @@ class ServiceResponse(BaseModel):
     last_seen: datetime
     scan_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ── Host ──────────────────────────────────────────────────────────────────────
@@ -34,8 +33,7 @@ class HostSummary(BaseModel):
     last_seen: datetime
     scan_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class HostDetail(HostSummary):
@@ -57,8 +55,7 @@ class EndpointResponse(BaseModel):
     last_seen: datetime
     scan_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ── Scan ──────────────────────────────────────────────────────────────────────
@@ -77,8 +74,7 @@ class ScanSummary(BaseModel):
     completed_at: Optional[datetime] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ScanDetail(ScanSummary):

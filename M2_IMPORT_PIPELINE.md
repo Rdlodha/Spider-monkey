@@ -26,14 +26,14 @@ Split into two vertical slices. Ship slice A fully (including UI) before startin
 5. Tests with fixtures for each format plus malformed lines (skip the line, record an error, continue).
 
 ## Definition of Done
-- [ ] Postgres stores scans, hosts, services, endpoints.
-- [ ] Nmap XML, Feroxbuster JSON, and Gobuster text import end to end.
-- [ ] Hosts, ports, services, and endpoints appear in the UI.
-- [ ] Raw output is preserved with SHA-256; re-importing identical output is detected.
-- [ ] Re-import creates no duplicates and updates `last_seen`.
-- [ ] Parse errors are visible in the UI.
-- [ ] All parsers produce the same normalized schema.
-- [ ] Parser tests run against fixtures and pass.
+- [x] Postgres stores scans, hosts, services, endpoints.
+- [x] Nmap XML, Feroxbuster JSON, and Gobuster text import end to end.
+- [x] Hosts, ports, services, and endpoints appear in the UI.
+- [x] Raw output is preserved with SHA-256; re-importing identical output is detected.
+- [x] Re-import creates no duplicates and updates `last_seen`.
+- [x] Parse errors are visible in the UI.
+- [x] All parsers produce the same normalized schema.
+- [x] Parser tests run against fixtures and pass.
 
 ## STOP
 No tool execution, no auto scanning, no job system. Import and analyze existing files only.

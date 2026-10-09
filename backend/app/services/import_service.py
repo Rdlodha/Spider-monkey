@@ -10,7 +10,7 @@ Rules:
 """
 import hashlib
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from sqlalchemy.orm import Session
 
@@ -136,7 +136,14 @@ def run_import(
 
     raw_path, sha256 = _save_raw(raw_content)
 
-    now = datetime.utcnow()
+    # Check if exact file was previously imported for this project
+    prior_scan = db.query(Scan).filter(
+        Scan.project_id == project_id,
+        Scan.raw_sha256 == sha256,
+        Scan.status == "completed",
+    ).first()
+
+    now = datetime.now(timezone.utc)
     scan = Scan(
         project_id=project_id,
         target_id=target_id,
@@ -157,7 +164,7 @@ def run_import(
         parse_result: ParseResult = parser.parse(raw_content)
 
         # Build IP → Host mapping for this import
-        now2 = datetime.utcnow()
+        now2 = datetime.now(timezone.utc)
         ip_to_host: dict[str, Host] = {}
         for h in parse_result.hosts:
             host = _upsert_host(db, project_id, scan.id, h, now2)
@@ -175,16 +182,23 @@ def run_import(
             _upsert_endpoint(db, project_id, scan.id, e, now2)
 
         scan.status = "completed"
-        scan.completed_at = datetime.utcnow()
-        # Store parse errors in the error field (JSON-serialized list)
-        if parse_result.errors:
+        scan.completed_at = datetime.now(timezone.utc)
+
+        # Store errors and re-import notice in the error field
+        notices = list(parse_result.errors)
+        if prior_scan:
+            notices.insert(
+                0,
+                f"Re-import of identical file detected (SHA-256: {sha256[:12]}...). Existing records updated.",
+            )
+        if notices:
             import json
-            scan.error = json.dumps(parse_result.errors)
+            scan.error = json.dumps(notices)
 
     except Exception as exc:
         scan.status = "failed"
         scan.error = str(exc)
-        scan.completed_at = datetime.utcnow()
+        scan.completed_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(scan)

@@ -13,6 +13,16 @@ def _nmap_bytes() -> bytes:
     return (Path(__file__).parent / "fixtures" / "nmap_normal.xml").read_bytes()
 
 
+def _ferox_bytes() -> bytes:
+    from pathlib import Path
+    return (Path(__file__).parent / "fixtures" / "ferox_normal.json").read_bytes()
+
+
+def _gobuster_bytes() -> bytes:
+    from pathlib import Path
+    return (Path(__file__).parent / "fixtures" / "gobuster_normal.txt").read_bytes()
+
+
 def _make_project(client: TestClient) -> str:
     """Helper to create a project and return its id."""
     resp = client.post(
@@ -139,3 +149,63 @@ class TestScanImport:
         assert 22 in ports
         assert 80 in ports
         assert 443 in ports
+
+    def test_import_feroxbuster_success(self, client: TestClient):
+        pid = _make_project(client)
+        resp = client.post(
+            "/api/scans/import",
+            data={"project_id": pid, "tool": "feroxbuster"},
+            files={"file": ("ferox.json", io.BytesIO(_ferox_bytes()), "application/json")},
+            headers={"Authorization": "Bearer test_token"},
+        )
+        assert resp.status_code == 200
+        scan_id = resp.json()["id"]
+
+        detail = client.get(
+            f"/api/scans/{scan_id}",
+            headers={"Authorization": "Bearer test_token"},
+        ).json()
+        assert detail["status"] == "completed"
+        assert len(detail["endpoints"]) == 4
+        urls = {ep["url"] for ep in detail["endpoints"]}
+        assert "http://example.com/admin" in urls
+
+    def test_import_gobuster_success(self, client: TestClient):
+        pid = _make_project(client)
+        resp = client.post(
+            "/api/scans/import",
+            data={"project_id": pid, "tool": "gobuster"},
+            files={"file": ("gobuster.txt", io.BytesIO(_gobuster_bytes()), "text/plain")},
+            headers={"Authorization": "Bearer test_token"},
+        )
+        assert resp.status_code == 200
+        scan_id = resp.json()["id"]
+
+        detail = client.get(
+            f"/api/scans/{scan_id}",
+            headers={"Authorization": "Bearer test_token"},
+        ).json()
+        assert detail["status"] == "completed"
+        assert len(detail["endpoints"]) == 5
+        paths = {ep["path"] for ep in detail["endpoints"]}
+        assert "/admin" in paths
+
+    def test_reimport_endpoints_no_duplicates(self, client: TestClient):
+        pid = _make_project(client)
+        ferox_data = _ferox_bytes()
+        for _ in range(2):
+            resp = client.post(
+                "/api/scans/import",
+                data={"project_id": pid, "tool": "feroxbuster"},
+                files={"file": ("ferox.json", io.BytesIO(ferox_data), "application/json")},
+                headers={"Authorization": "Bearer test_token"},
+            )
+            assert resp.status_code == 200
+            last_scan_id = resp.json()["id"]
+
+        detail = client.get(
+            f"/api/scans/{last_scan_id}",
+            headers={"Authorization": "Bearer test_token"},
+        ).json()
+        # Endpoints should not duplicate
+        assert len(detail["endpoints"]) == 4

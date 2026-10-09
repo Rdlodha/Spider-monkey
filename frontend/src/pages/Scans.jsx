@@ -65,8 +65,9 @@ function ImportForm({ projects, onImported }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-slate-400 mb-1">Project</label>
+          <label htmlFor="project-select" className="block text-sm text-slate-400 mb-1">Project</label>
           <select
+            id="project-select"
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
             required
@@ -80,8 +81,9 @@ function ImportForm({ projects, onImported }) {
         </div>
 
         <div>
-          <label className="block text-sm text-slate-400 mb-1">Tool</label>
+          <label htmlFor="tool-select" className="block text-sm text-slate-400 mb-1">Tool</label>
           <select
+            id="tool-select"
             value={tool}
             onChange={(e) => setTool(e.target.value)}
             className="w-full bg-slate-700 text-white border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -94,8 +96,9 @@ function ImportForm({ projects, onImported }) {
       </div>
 
       <div>
-        <label className="block text-sm text-slate-400 mb-1">Output file</label>
+        <label htmlFor="file-input" className="block text-sm text-slate-400 mb-1">Output file</label>
         <input
+          id="file-input"
           type="file"
           required
           onChange={(e) => setFile(e.target.files[0] || null)}

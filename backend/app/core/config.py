@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     database_url: str = "postgresql://reconforge:reconforge@localhost:5432/reconforge"
@@ -7,8 +7,6 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 settings = Settings()

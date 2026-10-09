@@ -17,6 +17,7 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="scans" element={<Scans />} />
           <Route path="web-recon" element={<WebRecon />} />
           <Route path="network-recon" element={<NetworkRecon />} />
           <Route path="database-recon" element={<DatabaseRecon />} />

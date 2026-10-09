@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime
-from sqlalchemy import String, DateTime, ForeignKey, func
+from datetime import datetime, timezone
+from sqlalchemy import String, DateTime, ForeignKey, Integer, Text, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Base(DeclarativeBase):
@@ -36,3 +36,80 @@ class AuditLog(Base):
     target: Mapped[str] = mapped_column(String(500), nullable=True)
     tool: Mapped[str] = mapped_column(String(100), nullable=True)
     result: Mapped[str] = mapped_column(String(100), nullable=True)
+
+
+class Scan(Base):
+    __tablename__ = "scan"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project.id", ondelete="CASCADE"), nullable=False)
+    target_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("target.id", ondelete="SET NULL"), nullable=True)
+    tool: Mapped[str] = mapped_column(String(50), nullable=False)
+    scan_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    # status: queued | running | completed | failed | cancelled
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="queued", server_default="queued")
+    raw_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    raw_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    exit_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    hosts: Mapped[list["Host"]] = relationship("Host", back_populates="scan", foreign_keys="Host.scan_id")
+    endpoints: Mapped[list["Endpoint"]] = relationship("Endpoint", back_populates="scan", foreign_keys="Endpoint.scan_id")
+
+
+class Host(Base):
+    __tablename__ = "host"
+    __table_args__ = (UniqueConstraint("project_id", "ip", name="uq_host_project_ip"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project.id", ondelete="CASCADE"), nullable=False)
+    ip: Mapped[str] = mapped_column(String(45), nullable=False)
+    hostname: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    first_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    scan_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("scan.id", ondelete="SET NULL"), nullable=True)
+
+    scan: Mapped["Scan | None"] = relationship("Scan", back_populates="hosts", foreign_keys=[scan_id])
+    services: Mapped[list["Service"]] = relationship("Service", back_populates="host", cascade="all, delete-orphan")
+
+
+class Service(Base):
+    __tablename__ = "service"
+    __table_args__ = (UniqueConstraint("host_id", "protocol", "port", name="uq_service_host_proto_port"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    host_id: Mapped[str] = mapped_column(String(36), ForeignKey("host.id", ondelete="CASCADE"), nullable=False)
+    protocol: Mapped[str] = mapped_column(String(10), nullable=False)
+    port: Mapped[int] = mapped_column(Integer, nullable=False)
+    state: Mapped[str] = mapped_column(String(20), nullable=False)
+    name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    product: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    version: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    first_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    scan_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("scan.id", ondelete="SET NULL"), nullable=True)
+
+    host: Mapped["Host"] = relationship("Host", back_populates="services")
+
+
+class Endpoint(Base):
+    __tablename__ = "endpoint"
+    __table_args__ = (UniqueConstraint("project_id", "url", name="uq_endpoint_project_url"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project.id", ondelete="CASCADE"), nullable=False)
+    host_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("host.id", ondelete="SET NULL"), nullable=True)
+    url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    path: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    status_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    content_length: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_tool: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    is_interesting: Mapped[bool] = mapped_column(default=False, server_default="false")
+    first_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    scan_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("scan.id", ondelete="SET NULL"), nullable=True)
+
+    scan: Mapped["Scan | None"] = relationship("Scan", back_populates="endpoints", foreign_keys=[scan_id])
