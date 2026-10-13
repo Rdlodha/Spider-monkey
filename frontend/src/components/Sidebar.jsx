@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Radar, Globe, Network, Database, AlertCircle, CheckSquare, Settings, Wrench, Shield, Play } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Radar, Globe, Network, Database, AlertCircle, CheckSquare, Settings, Wrench, Shield, Play, GitFork, FileText, History } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 const links = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
   { name: 'Projects', to: '/projects', icon: FolderKanban },
   { name: 'Scans', to: '/scans', icon: Radar },
+  { name: 'Attack Surface', to: '/attack-surface', icon: GitFork },
+  { name: 'Reports', to: '/reports', icon: FileText },
   { name: 'Web Recon', to: '/web-recon', icon: Globe },
   { name: 'Network Recon', to: '/network-recon', icon: Network },
   { name: 'Database Recon', to: '/database-recon', icon: Database },
@@ -14,6 +16,7 @@ const links = [
   { name: 'Tools', to: '/tools', icon: Wrench },
   { name: 'Proxy Manager', to: '/proxy-manager', icon: Shield },
   { name: 'Scan Jobs', to: '/scan-jobs', icon: Play },
+  { name: 'Audit Logs', to: '/audit-logs', icon: History },
   { name: 'Settings', to: '/settings', icon: Settings },
 ]
 

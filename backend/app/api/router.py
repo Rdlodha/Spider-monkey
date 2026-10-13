@@ -10,6 +10,7 @@ from .endpoints import router as endpoints_router
 from .findings import router as findings_router
 from .checklists import router as checklists_router
 from .analytics import router as analytics_router
+from .reports_graph import router as reports_graph_router
 
 api_router = APIRouter()
 api_router.include_router(health_router, tags=["health"])
@@ -23,3 +24,4 @@ api_router.include_router(checklists_router, prefix="/checklists", tags=["checkl
 api_router.include_router(analytics_router, tags=["analytics"])
 api_router.include_router(engine_router, prefix="/engine", tags=["engine"])
 api_router.include_router(proxy_router, prefix="/proxy-profiles", tags=["proxy"])
+api_router.include_router(reports_graph_router, tags=["reports_graph"])

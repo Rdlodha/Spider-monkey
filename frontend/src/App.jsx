@@ -11,6 +11,9 @@ import Checklist from './pages/Checklist'
 import Tools from './pages/Tools'
 import ProxyManager from './pages/ProxyManager'
 import ScanJobs from './pages/ScanJobs'
+import AttackSurface from './pages/AttackSurface'
+import Reports from './pages/Reports'
+import AuditLogs from './pages/AuditLogs'
 import Settings from './pages/Settings'
 
 function App() {
@@ -21,6 +24,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
           <Route path="scans" element={<Scans />} />
+          <Route path="attack-surface" element={<AttackSurface />} />
+          <Route path="reports" element={<Reports />} />
           <Route path="web-recon" element={<WebRecon />} />
           <Route path="network-recon" element={<NetworkRecon />} />
           <Route path="database-recon" element={<DatabaseRecon />} />
@@ -29,6 +34,7 @@ function App() {
           <Route path="tools" element={<Tools />} />
           <Route path="proxy-manager" element={<ProxyManager />} />
           <Route path="scan-jobs" element={<ScanJobs />} />
+          <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
