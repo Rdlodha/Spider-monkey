@@ -9,3 +9,6 @@
 | 5 | All parsers return normalized objects; DB layer is tool-agnostic | Decouples parsing from persistence; easy to add new tools |
 | 6 | Parser registry with automatic content sniffing & tool override | Enables seamless drag-and-drop imports with explicit manual fallback |
 | 7 | Common Endpoint schema with URL normalization (scheme/host lowercase, default ports stripped) | Eliminates duplicate URL variations from directory brute-forcing tools |
+| 8 | Random file naming in `data/evidence/` with MIME magic-byte validation and attachment download headers | Prevents path traversal and stored HTML/SVG execution |
+| 9 | Versioned checklist templates mapped to per-target ChecklistProgress records | Allows updating global methodology templates without altering past assessment records |
+| 10 | Deterministic rule table correlation yielding non-authoritative suggestions | Prevents AI hallucination or false positives from being committed without analyst consent |

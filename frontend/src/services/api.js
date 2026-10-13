@@ -42,10 +42,29 @@ async function uploadFile(path, formData) {
   return handleResponse(response)
 }
 
+async function downloadFile(path, filename) {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: authHeaders(),
+  })
+  if (!response.ok) {
+    throw new Error('Download failed')
+  }
+  const blob = await response.blob()
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename || 'download'
+  document.body.appendChild(a)
+  a.click()
+  window.URL.revokeObjectURL(url)
+  document.body.removeChild(a)
+}
+
 export const api = {
   get: (path) => fetchWithAuth(path),
   post: (path, body) => fetchWithAuth(path, { method: 'POST', body: JSON.stringify(body) }),
   patch: (path, body) => fetchWithAuth(path, { method: 'PATCH', body: JSON.stringify(body) }),
-  delete: (path) => fetchWithAuth(path, { method: 'DELETE' }),
+  delete: (path) => fetchWithAuth(path),
   upload: (path, formData) => uploadFile(path, formData),
+  download: (path, filename) => downloadFile(path, filename),
 }

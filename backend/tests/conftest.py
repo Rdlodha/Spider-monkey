@@ -15,8 +15,12 @@ from app.core.config import settings
 settings.local_token_path = str(TEST_TOKEN_FILE)
 
 from app.main import app
-from app.models.base import Base, Project, Target, AuditLog, Scan, Host, Service, Endpoint
+from app.models.base import (
+    Base, Project, Target, AuditLog, Scan, Host, Service, Endpoint,
+    Finding, FindingLink, Evidence, ChecklistTemplate, ChecklistTemplateItem, ChecklistProgress
+)
 from app.api.projects import get_db
+from app.services.checklist_service import seed_templates
 
 # Create SQLite in-memory tables
 engine = create_engine(
@@ -24,6 +28,8 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
 )
 Base.metadata.create_all(bind=engine)
+with Session(bind=engine) as init_db:
+    seed_templates(init_db)
 
 
 @pytest.fixture(autouse=True)

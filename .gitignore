@@ -1,5 +1,7 @@
 .env
 backend/.local/
+**/.local/
+*.db
 data/
 __pycache__/
 *.pyc

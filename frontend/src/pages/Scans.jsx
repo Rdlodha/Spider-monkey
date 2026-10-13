@@ -200,14 +200,38 @@ function ScanDetail({ scan, onClose }) {
           </h3>
           <div className="space-y-1">
             {detail.hosts.map((h) => (
-              <button
+              <div
                 key={h.id}
-                onClick={() => loadHostDetail(h.id)}
-                className="w-full text-left bg-slate-700 hover:bg-slate-600 rounded px-3 py-2 text-sm transition-colors"
+                className="flex items-center justify-between bg-slate-700 hover:bg-slate-600 rounded px-3 py-2 text-sm transition-colors"
               >
-                <span className="text-white font-mono">{h.ip}</span>
-                {h.hostname && <span className="text-slate-400 ml-2">({h.hostname})</span>}
-              </button>
+                <button
+                  onClick={() => loadHostDetail(h.id)}
+                  className="flex-1 text-left flex items-center gap-2"
+                >
+                  <span className="text-white font-mono">{h.ip}</span>
+                  {h.hostname && <span className="text-slate-400">({h.hostname})</span>}
+                </button>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    try {
+                      const updated = await api.patch(`/api/hosts/${h.id}/interesting`)
+                      setDetail((prev) => ({
+                        ...prev,
+                        hosts: prev.hosts.map((host) => (host.id === h.id ? { ...host, is_interesting: updated.is_interesting } : host)),
+                      }))
+                    } catch (err) {
+                      console.error(err)
+                    }
+                  }}
+                  title="Toggle interesting"
+                  className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                    h.is_interesting ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'text-slate-400 border-slate-600 hover:text-white'
+                  }`}
+                >
+                  ★ {h.is_interesting ? 'Flagged' : 'Flag'}
+                </button>
+              </div>
             ))}
           </div>
         </div>
@@ -233,6 +257,7 @@ function ScanDetail({ scan, onClose }) {
                   <th className="text-left py-1">State</th>
                   <th className="text-left py-1">Service</th>
                   <th className="text-left py-1">Product / Version</th>
+                  <th className="text-right py-1">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -245,6 +270,47 @@ function ScanDetail({ scan, onClose }) {
                     </td>
                     <td className="py-1">{s.name || '—'}</td>
                     <td className="py-1 text-slate-400">{[s.product, s.version].filter(Boolean).join(' ') || '—'}</td>
+                    <td className="py-1 text-right space-x-1.5 whitespace-nowrap">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const updated = await api.patch(`/api/hosts/services/${s.id}/interesting`)
+                            setHostDetail((prev) => ({
+                              ...prev,
+                              services: prev.services.map((svc) => (svc.id === s.id ? updated : svc)),
+                            }))
+                          } catch (err) {
+                            console.error(err)
+                          }
+                        }}
+                        className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                          s.is_interesting ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'text-slate-400 border-slate-600'
+                        }`}
+                      >
+                        ★
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.post('/api/findings', {
+                              project_id: detail.project_id,
+                              title: `Service ${hostDetail.ip}:${s.port}/${s.protocol} (${s.name || 'unknown'})`,
+                              description: `Discovered running service: ${[s.product, s.version].filter(Boolean).join(' ') || s.name || s.protocol}`,
+                              severity: 'INFO',
+                              source_tool: detail.tool,
+                              source_scan_id: detail.id,
+                              links: [{ entity_type: 'service', entity_id: s.id }],
+                            })
+                            alert('Finding created from service!')
+                          } catch (err) {
+                            alert(err.message)
+                          }
+                        }}
+                        className="text-[10px] bg-blue-600 hover:bg-blue-500 text-white px-2 py-0.5 rounded"
+                      >
+                        + Finding
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -266,6 +332,7 @@ function ScanDetail({ scan, onClose }) {
                 <th className="text-left py-1">URL</th>
                 <th className="text-left py-1">Size</th>
                 <th className="text-left py-1">Tool</th>
+                <th className="text-right py-1">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -277,6 +344,47 @@ function ScanDetail({ scan, onClose }) {
                   <td className="py-1 font-mono truncate max-w-xs">{ep.url}</td>
                   <td className="py-1 text-slate-400">{ep.content_length ?? '—'}</td>
                   <td className="py-1 text-slate-400">{ep.source_tool}</td>
+                  <td className="py-1 text-right space-x-1.5 whitespace-nowrap">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const updated = await api.patch(`/api/endpoints/${ep.id}/interesting`)
+                          setDetail((prev) => ({
+                            ...prev,
+                            endpoints: prev.endpoints.map((e) => (e.id === ep.id ? updated : e)),
+                          }))
+                        } catch (err) {
+                          console.error(err)
+                        }
+                      }}
+                      className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                        ep.is_interesting ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'text-slate-400 border-slate-600'
+                      }`}
+                    >
+                      ★
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.post('/api/findings', {
+                            project_id: detail.project_id,
+                            title: `Discovered endpoint: ${ep.path || ep.url}`,
+                            description: `Endpoint returned HTTP ${ep.status_code ?? 'unknown'} with length ${ep.content_length ?? 'unknown'} bytes. Source tool: ${ep.source_tool}`,
+                            severity: 'INFO',
+                            source_tool: ep.source_tool,
+                            source_scan_id: detail.id,
+                            links: [{ entity_type: 'endpoint', entity_id: ep.id }],
+                          })
+                          alert('Finding created from endpoint!')
+                        } catch (err) {
+                          alert(err.message)
+                        }
+                      }}
+                      className="text-[10px] bg-blue-600 hover:bg-blue-500 text-white px-2 py-0.5 rounded"
+                    >
+                      + Finding
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

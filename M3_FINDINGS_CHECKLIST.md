@@ -15,13 +15,13 @@
 5. **Dashboard:** counts for hosts, open ports, endpoints, findings, critical findings, checklist progress per target. Optional: "new since last scan" using `first_seen`.
 
 ## Definition of Done
-- [ ] Findings can be created, edited, linked to multiple entities, and filtered by severity/status/tag.
-- [ ] Evidence upload works and rejects unsafe types.
-- [ ] Checklist progress persists and survives reload.
-- [ ] Sample Nmap + Ferox import shows `Host → HTTP → /admin, /api, /backup`.
-- [ ] A finding created from an endpoint can be tied to a checklist item marked complete.
-- [ ] Suggested correlations can be accepted/dismissed.
-- [ ] Dashboard numbers match the database (tested).
+- [x] Findings can be created, edited, linked to multiple entities, and filtered by severity/status/tag.
+- [x] Evidence upload works and rejects unsafe types.
+- [x] Checklist progress persists and survives reload.
+- [x] Sample Nmap + Ferox import shows `Host → HTTP → /admin, /api, /backup`.
+- [x] A finding created from an endpoint can be tied to a checklist item marked complete.
+- [x] Suggested correlations can be accepted/dismissed.
+- [x] Dashboard numbers match the database (tested).
 
 ## STOP
 No auto-exploitation, no auto-verification of vulnerabilities, no AI-based correlation.

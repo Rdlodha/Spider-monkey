@@ -18,6 +18,7 @@ class ServiceResponse(BaseModel):
     first_seen: datetime
     last_seen: datetime
     scan_id: Optional[str] = None
+    is_interesting: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -32,6 +33,7 @@ class HostSummary(BaseModel):
     first_seen: datetime
     last_seen: datetime
     scan_id: Optional[str] = None
+    is_interesting: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
