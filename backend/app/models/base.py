@@ -220,3 +220,64 @@ class ChecklistProgress(Base):
 
     target: Mapped["Target"] = relationship("Target", back_populates="checklist_progress")
     template_item: Mapped["ChecklistTemplateItem"] = relationship("ChecklistTemplateItem")
+
+# ── Tool Engine Models ────────────────────────────────────────────────────────
+
+class ScopeEntry(Base):
+    __tablename__ = "scope_entry"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project.id", ondelete="CASCADE"), nullable=False)
+    type: Mapped[str] = mapped_column(String(20), nullable=False)  # IP, CIDR, DOMAIN
+    value: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    project: Mapped["Project"] = relationship("Project", back_populates="scope_entries")
+
+class ProxyProfile(Base):
+    __tablename__ = "proxy_profile"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # DIRECT | HTTP | HTTPS | SOCKS5 | BURP | CUSTOM
+    type: Mapped[str] = mapped_column(String(20), nullable=False, default="DIRECT", server_default="DIRECT")
+    host: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    port: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Fernet-encrypted password; null means no password configured.
+    encrypted_password: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+
+class Job(Base):
+    __tablename__ = "job"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project.id", ondelete="CASCADE"), nullable=False)
+    target_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("target.id", ondelete="SET NULL"), nullable=True)
+    scope_entry_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("scope_entry.id", ondelete="SET NULL"), nullable=True)
+    proxy_profile_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("proxy_profile.id", ondelete="SET NULL"), nullable=True)
+    tool: Mapped[str] = mapped_column(String(50), nullable=False)
+    profile: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="queued", server_default="queued")
+    command: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON or space-joined argv string
+    stdout_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    stderr_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    exit_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    project: Mapped["Project"] = relationship("Project", back_populates="jobs")
+    target: Mapped["Target"] = relationship("Target")
+    scope_entry: Mapped["ScopeEntry"] = relationship("ScopeEntry")
+    proxy_profile: Mapped["ProxyProfile | None"] = relationship("ProxyProfile")
+
+# Extend Project relationships
+Project.scope_entries: Mapped[list["ScopeEntry"]] = relationship(
+    "ScopeEntry", back_populates="project", cascade="all, delete-orphan"
+)
+Project.jobs: Mapped[list["Job"]] = relationship(
+    "Job", back_populates="project", cascade="all, delete-orphan"
+)

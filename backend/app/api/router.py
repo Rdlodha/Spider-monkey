@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from .health import router as health_router
+from .engine import router as engine_router
+from .proxy import router as proxy_router
 from .projects import router as projects_router
 from .targets import router as targets_router
 from .scans import router as scans_router
@@ -19,3 +21,5 @@ api_router.include_router(endpoints_router, prefix="/endpoints", tags=["endpoint
 api_router.include_router(findings_router, prefix="/findings", tags=["findings"])
 api_router.include_router(checklists_router, prefix="/checklists", tags=["checklists"])
 api_router.include_router(analytics_router, tags=["analytics"])
+api_router.include_router(engine_router, prefix="/engine", tags=["engine"])
+api_router.include_router(proxy_router, prefix="/proxy-profiles", tags=["proxy"])

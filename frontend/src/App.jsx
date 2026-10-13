@@ -8,6 +8,9 @@ import NetworkRecon from './pages/NetworkRecon'
 import DatabaseRecon from './pages/DatabaseRecon'
 import Findings from './pages/Findings'
 import Checklist from './pages/Checklist'
+import Tools from './pages/Tools'
+import ProxyManager from './pages/ProxyManager'
+import ScanJobs from './pages/ScanJobs'
 import Settings from './pages/Settings'
 
 function App() {
@@ -23,6 +26,9 @@ function App() {
           <Route path="database-recon" element={<DatabaseRecon />} />
           <Route path="findings" element={<Findings />} />
           <Route path="checklist" element={<Checklist />} />
+          <Route path="tools" element={<Tools />} />
+          <Route path="proxy-manager" element={<ProxyManager />} />
+          <Route path="scan-jobs" element={<ScanJobs />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
