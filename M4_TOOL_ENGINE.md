@@ -21,14 +21,14 @@ Split into two parts. Finish 4A before 4B.
 4. UI: Tools, Proxy Manager, Scan Jobs (live status, stdout/stderr view, cancel with confirmation).
 
 ## Definition of Done
-- [ ] Adapters generate commands only via argv lists; unit-tested including hostile inputs (`;`, `$()`, leading `-`, spaces, unicode).
-- [ ] Out-of-scope and DNS-rebinding targets are rejected (tested).
-- [ ] Jobs show state, exit code, stdout, stderr; timeout and cancel work.
-- [ ] Scan and its scope confirmation, tool, profile, and proxy are stored and shown in history.
-- [ ] Proxy secrets are encrypted at rest and never returned by the API.
-- [ ] Proxy test reports all four outcomes.
-- [ ] Every job lifecycle event is in the audit log.
-- [ ] End-to-end against a local lab target: configure → run → raw output → parse → hosts/endpoints.
+- [x] Adapters generate commands only via argv lists; unit-tested including hostile inputs (`;`, `$()`, leading `-`, spaces, unicode).
+- [x] Out-of-scope and DNS-rebinding targets are rejected (tested).
+- [x] Jobs show state, exit code, stdout, stderr; timeout and cancel work.
+- [x] Scan and its scope confirmation, tool, profile, and proxy are stored and shown in history.
+- [x] Proxy secrets are encrypted at rest and never returned by the API.
+- [x] Proxy test reports all four outcomes.
+- [x] Every job lifecycle event is in the audit log.
+- [x] End-to-end against a local lab target: configure → run → raw output → parse → hosts/endpoints.
 
 ## STOP
 No IP/proxy rotation, no stealth or anti-detection, no credential attacks, no exploitation, no free-form command input.

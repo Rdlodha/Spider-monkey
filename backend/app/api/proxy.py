@@ -180,10 +180,9 @@ def test_proxy_profile(profile_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Proxy profile not found")
 
     proxy_url = _proxy_url(profile)
-    proxies = {"http://": proxy_url, "https://": proxy_url} if proxy_url else None
 
     try:
-        with httpx.Client(proxies=proxies, timeout=_PROXY_TEST_TIMEOUT, follow_redirects=True) as client:
+        with httpx.Client(proxy=proxy_url, timeout=_PROXY_TEST_TIMEOUT, follow_redirects=True) as client:
             resp = client.get(_PROXY_CHECK_URL)
 
         if resp.status_code == 407:
