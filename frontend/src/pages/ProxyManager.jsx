@@ -46,7 +46,7 @@ export default function ProxyManager() {
 
   const load = async () => {
     try {
-      const data = await api.get('/proxy-profiles')
+      const data = await api.get('/api/proxy-profiles')
       setProfiles(data)
     } catch (e) {
       console.error(e)
@@ -79,9 +79,9 @@ export default function ProxyManager() {
         password: form.password || undefined,
       }
       if (editingId) {
-        await api.patch(`/proxy-profiles/${editingId}`, body)
+        await api.patch(`/api/proxy-profiles/${editingId}`, body)
       } else {
-        await api.post('/proxy-profiles', body)
+        await api.post('/api/proxy-profiles', body)
       }
       setShowForm(false)
       load()
@@ -94,14 +94,14 @@ export default function ProxyManager() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this proxy profile?')) return
-    await api.delete(`/proxy-profiles/${id}`)
+    await api.delete(`/api/proxy-profiles/${id}`)
     load()
   }
 
   const handleTest = async (id) => {
     setTesting(prev => ({ ...prev, [id]: true }))
     try {
-      const result = await api.post(`/proxy-profiles/${id}/test`, {})
+      const result = await api.post(`/api/proxy-profiles/${id}/test`, {})
       setTestResults(prev => ({ ...prev, [id]: result.outcome }))
     } catch {
       setTestResults(prev => ({ ...prev, [id]: 'Failed' }))

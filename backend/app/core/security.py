@@ -19,6 +19,8 @@ def ensure_token_exists():
 
 class BearerTokenMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS":
+            return await call_next(request)
         if request.url.path.startswith("/api/health"):
             return await call_next(request)
         if request.url.path.startswith("/api"):

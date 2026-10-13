@@ -116,7 +116,7 @@ export default function ScanJobs() {
     try {
       // The engine router lists all jobs for all projects
       // We call a broader endpoint; for now we fetch by page using project_id from query
-      const data = await api.get('/engine/jobs')
+      const data = await api.get('/api/engine/jobs')
       setJobs(data)
     } catch {
       // ignore
@@ -140,7 +140,7 @@ export default function ScanJobs() {
 
   const handleCancel = async (id) => {
     try {
-      await api.post(`/engine/jobs/${id}/cancel`, {})
+      await api.post(`/api/engine/jobs/${id}/cancel`, {})
       load()
     } catch (e) {
       alert(e.message || 'Failed to cancel')

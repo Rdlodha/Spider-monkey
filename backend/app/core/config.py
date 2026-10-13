@@ -6,7 +6,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 class Settings(BaseSettings):
     database_url: str = "sqlite:///./reconforge.db"
     frontend_origin: str = "http://localhost:5173"
-    local_token_path: str = "backend/.local/token"
+    local_token_path: str = str(PROJECT_ROOT / ".local" / "token")
     host: str = "127.0.0.1"
     port: int = 8000
 
