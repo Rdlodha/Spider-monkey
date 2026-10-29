@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { FileText, Download, CheckCircle, Shield, AlertTriangle, Eye, Loader2 } from 'lucide-react'
+import { FileText, Download, Eye, Loader2 } from 'lucide-react'
 import { api } from '../services/api'
+import { useToast } from '../components/Toast'
 
 export default function Reports() {
   const [projects, setProjects] = useState([])
@@ -11,6 +12,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     api.get('/api/projects')
@@ -55,8 +57,9 @@ export default function Reports() {
         `/api/reports/${selectedProject}/pdf?exclude_false_positives=${excludeFalsePositives}&redact_evidence=${redactEvidence}`,
         `reconforge_${name}_report.pdf`
       )
+      toast.success('PDF report downloaded')
     } catch (e) {
-      alert(e.message || 'PDF generation failed')
+      toast.error(e.message || 'PDF generation failed')
     } finally {
       setGenerating(false)
     }
@@ -72,6 +75,7 @@ export default function Reports() {
     a.download = `reconforge_${name}_report.md`
     a.click()
     URL.revokeObjectURL(url)
+    toast.success('Markdown report exported')
   }
 
   return (

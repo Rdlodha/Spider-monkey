@@ -24,13 +24,13 @@
 9. **README:** purpose, architecture diagram, screenshots, install, env vars, DB setup, running both apps, supported tools and parser formats, proxy config, **threat model** (local-only assumptions, what the token protects), security warnings, authorized-use notice, limitations, roadmap.
 
 ## Definition of Done
-- [ ] Full workflow works: create project → scope → (proxy) → run/import → parse → correlate → checklist → findings → evidence → graph → report.
-- [ ] Report generates in Markdown and PDF.
-- [ ] `docs/SECURITY.md` review complete with fixes applied.
-- [ ] Audit log viewable and append-only.
-- [ ] Automated tests pass; lint passes.
-- [ ] README complete; a fresh clone can be running by following it.
-- [ ] Demo data and lab compose work.
+- [x] Full workflow works: create project → scope → (proxy) → run/import → parse → correlate → checklist → findings → evidence → graph → report.
+- [x] Report generates in Markdown and PDF.
+- [x] `docs/SECURITY.md` review complete with fixes applied.
+- [x] Audit log viewable and append-only.
+- [x] Automated tests pass; lint passes.
+- [x] README complete; a fresh clone can be running by following it.
+- [x] Demo data and lab compose work.
 
 ## Final workflow
 ```text

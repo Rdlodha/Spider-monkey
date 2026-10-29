@@ -1,0 +1,89 @@
+# Lab compose — intentionally vulnerable targets for local ReconForge demos.
+# These images are INTENTIONALLY VULNERABLE. Bind to 127.0.0.1 ONLY.
+# NEVER expose these ports on a public network interface.
+#
+# Usage:
+#   docker compose -f docker-compose.lab.yml up -d
+#   docker compose -f docker-compose.lab.yml down -v   # remove all data
+#
+# After starting, seed demo data:
+#   cd backend && python ../scripts/seed_demo.py
+
+services:
+
+  # ── DVWA (Damn Vulnerable Web Application) ─────────────────────────────────
+  dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    environment:
+      DB_SERVER: dvwa-db
+      DB_DATABASE: dvwa
+      DB_USER: dvwa
+      DB_PASSWORD: p@ssw0rd
+      DB_PORT: "3306"
+      RECAPTCHA_PRIV_KEY: ""
+      RECAPTCHA_PUB_KEY: ""
+      SECURITY_LEVEL: low
+      PHPIDS_ENABLED: "0"
+      PHPIDS_VERBOSE: "0"
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      dvwa-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  dvwa-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: p@ssw0rd
+    volumes:
+      - dvwa-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dvwa", "-pp@ssw0rd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── OWASP Juice Shop ──────────────────────────────────────────────────────
+  juiceshop:
+    image: bkimminich/juice-shop:latest
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
+  # ── Vulnerable phpMyAdmin (pairs with DVWA db) ────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    environment:
+      PMA_HOST: dvwa-db
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "127.0.0.1:8081:80"
+    depends_on:
+      - dvwa-db
+    restart: unless-stopped
+
+volumes:
+  dvwa-db-data:
+
+# ────────────────────────────────────────────────────────────────────────────
+# Target summary for seed_demo.py and manual testing:
+#
+#   Service           URL                           Credentials
+#   ───────────────   ────────────────────────────  ──────────────────────────
+#   DVWA              http://localhost:8080/dvwa/   admin / password (setup first)
+#   Juice Shop        http://localhost:3000          admin@juice-sh.op / admin123
+#   phpMyAdmin        http://localhost:8081          root / rootpassword
+#
+# First-time DVWA setup:
+#   1. Open http://localhost:8080/dvwa/setup.php
+#   2. Click "Create / Reset Database"
+#   3. Login: admin / password
+#   4. Set Security Level → Low
+# ────────────────────────────────────────────────────────────────────────────

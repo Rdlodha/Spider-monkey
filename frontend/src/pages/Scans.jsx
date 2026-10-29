@@ -1,10 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../services/api'
+import { useToast } from '../components/Toast'
 
 const SUPPORTED_TOOLS = [
-  { value: 'nmap', label: 'Nmap (XML)' },
-  { value: 'feroxbuster', label: 'Feroxbuster (JSON lines)' },
-  { value: 'gobuster', label: 'Gobuster (text)' },
+  // Network & port scanning
+  { value: 'nmap',       label: 'Nmap (XML)',                  group: 'Network' },
+  // Web content discovery
+  { value: 'feroxbuster', label: 'Feroxbuster (JSON lines)',   group: 'Web Discovery' },
+  { value: 'gobuster',   label: 'Gobuster (text)',              group: 'Web Discovery' },
+  // Subdomain / passive recon
+  { value: 'subfinder',  label: 'Subfinder (JSON lines, -oJ)', group: 'Subdomain Recon' },
+  { value: 'amass',      label: 'Amass (JSON lines, -json)',   group: 'Subdomain Recon' },
+  // Web probing & fingerprinting
+  { value: 'httpx',      label: 'Httpx (JSON lines, -json)',   group: 'Web Probing' },
+  { value: 'whatweb',    label: 'WhatWeb (JSON, --log-json)',   group: 'Web Probing' },
+  { value: 'wappalyzer', label: 'Wappalyzer (JSON, --output=json)', group: 'Web Probing' },
 ]
 
 function StatusBadge({ status }) {
@@ -28,6 +38,7 @@ function ImportForm({ projects, onImported }) {
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const { toast } = useToast()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -45,9 +56,11 @@ function ImportForm({ projects, onImported }) {
       await api.upload('/api/scans/import', fd)
       setFile(null)
       e.target.reset()
+      toast.success(`Scan imported successfully (${tool})`)
       onImported()
     } catch (err) {
       setError(err.message)
+      toast.error(`Import failed: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -104,7 +117,11 @@ function ImportForm({ projects, onImported }) {
           onChange={(e) => setFile(e.target.files[0] || null)}
           className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer hover:file:bg-blue-500"
         />
-        <p className="text-xs text-slate-500 mt-1">Max 50 MB. Nmap → XML. Feroxbuster → JSON lines. Gobuster → text.</p>
+        <p className="text-xs text-slate-500 mt-1">
+          Max 50 MB. <strong>Nmap</strong> → XML&nbsp; · &nbsp;<strong>Feroxbuster</strong> → JSON lines&nbsp; · &nbsp;<strong>Gobuster</strong> → text&nbsp; · &nbsp;
+          <strong>Subfinder</strong> → JSON lines (-oJ)&nbsp; · &nbsp;<strong>Amass</strong> → JSON lines (-json)&nbsp; · &nbsp;
+          <strong>Httpx</strong> → JSON lines (-json)&nbsp; · &nbsp;<strong>WhatWeb</strong> → JSON (--log-json)&nbsp; · &nbsp;<strong>Wappalyzer</strong> → JSON (--output=json)
+        </p>
       </div>
 
       <button
