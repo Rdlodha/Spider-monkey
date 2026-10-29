@@ -404,6 +404,7 @@ Spider Monkey/
 │   │   └── services/     # api.js
 │   └── package.json
 ├── docs/
+│   ├── ADDING_TOOLS.md   # Step-by-step tool integration guide for AI & devs
 │   ├── SECURITY.md       # Security review & sign-off
 │   └── DECISIONS.md      # Architecture decision records
 ├── scripts/
